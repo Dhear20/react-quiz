@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-// 1. HELPER: Fungsi untuk membersihkan teks dari HTML Entities (Biar tidak muncul &quot; dll)
 const decodeHTML = (html) => {
   const txt = document.createElement('textarea')
   txt.innerHTML = html
   return txt.value
 }
 
-// 2. HELPER: Fungsi untuk mengacak array (Algoritma Fisher-Yates)
 const shuffleArray = (array) => {
   const newArray = [...array]
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -29,10 +27,9 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [usernameInput, setUsernameInput] = useState('')
 
-  // URL API OpenDB yang kamu generate tadi
   const API_URL = 'https://opentdb.com/api.php?amount=10&category=27&difficulty=medium&type=multiple'
 
-  // --- 3. MEKANISME RESUME KUIS (LOCALSTORAGE) ---
+  // --- (LOCALSTORAGE) ---
   useEffect(() => {
     const savedStatus = localStorage.getItem('quiz_status')
     if (savedStatus === 'PLAYING') {
@@ -64,7 +61,6 @@ function App() {
     }
   }, [quizStatus, currentIndex, userAnswers, timer, questions])
 
-  // --- 4. LOGIKA TIMER ---
   useEffect(() => {
     if (quizStatus !== 'PLAYING') return
 
@@ -80,15 +76,13 @@ function App() {
     return () => clearInterval(countdown)
   }, [timer, quizStatus])
 
-  // --- 5. FUNCTION: FETCH DATA API ---
   const fetchQuestions = async () => {
     setLoading(true)
     try {
       const res = await fetch(API_URL)
       const data = await res.json()
       
-      // Format data agar jawaban digabung dan diacak dari awal
-      const formattedQuestions = data.results.map((q) => {
+     const formattedQuestions = data.results.map((q) => {
         const allChoices = shuffleArray([q.correct_answer, ...q.incorrect_answers])
         return {
           question: decodeHTML(q.question),
@@ -99,7 +93,7 @@ function App() {
 
       setQuestions(formattedQuestions)
       setQuizStatus('PLAYING')
-      setTimer(60) // Reset timer ke 60 detik saat mulai baru
+      setTimer(60) 
       setCurrentIndex(0)
       setUserAnswers([])
     } catch (error) {
@@ -110,7 +104,6 @@ function App() {
     }
   }
 
-  // --- 6. FUNCTION: HANDLE ACTION ---
   const handleLogin = (e) => {
     e.preventDefault()
     if (!usernameInput.trim()) return alert('Nama tidak boleh kosong!')
@@ -132,7 +125,6 @@ function App() {
     
     setUserAnswers(updatedAnswers)
 
-    // Cek apakah ini soal terakhir
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex(currentIndex + 1)
     } else {
@@ -150,7 +142,6 @@ function App() {
     setUsernameInput('')
   }
 
-  // --- 7. RENDER COMPONENT BERDASARKAN STATUS ---
   if (quizStatus === 'LOGIN') {
     return (
       <div className="card-container">
